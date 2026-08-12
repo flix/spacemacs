@@ -3,8 +3,8 @@
 ;; Copyright (C) 2026 Kent OHASHI
 
 ;; Author: Kent OHASHI <ignorantia.juris.non.excusa@gmail.com>
-;; URL: https://github.com/lagenorhynque/flix-layer
-;; License: GPL-3.0-or-later
+;; URL: https://github.com/flix/spacemacs
+;; License: Apache-2.0
 
 ;;; Commentary:
 

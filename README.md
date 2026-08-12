@@ -5,7 +5,7 @@ A [Spacemacs](https://www.spacemacs.org/) layer for the
 
 ## Description
 
-This layer wires up [`flix-mode`](https://codeberg.org/mdiin/flix-mode) as the
+This layer wires up [`flix-mode`](https://github.com/flix/emacs) as the
 major mode and drives the official Flix compiler as an LSP server, giving you
 the same core language features available in the official
 [VS Code](https://github.com/flix/vscode-flix) and
@@ -45,7 +45,7 @@ This layer requires:
 Clone this repository into your private layers directory:
 
 ```sh
-git clone https://github.com/lagenorhynque/flix-layer.git \
+git clone https://github.com/flix/spacemacs.git \
   ~/.emacs.d/private/flix
 ```
 
@@ -140,4 +140,4 @@ other language features come from the `lsp` layer's standard bindings (e.g.
 
 ## License
 
-GPL-3.0-or-later. See [LICENSE](LICENSE).
+Apache-2.0. See [LICENSE.md](LICENSE.md).

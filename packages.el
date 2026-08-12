@@ -3,13 +3,13 @@
 ;; Copyright (C) 2026 Kent OHASHI
 
 ;; Author: Kent OHASHI <ignorantia.juris.non.excusa@gmail.com>
-;; URL: https://github.com/lagenorhynque/flix-layer
-;; License: GPL-3.0-or-later
+;; URL: https://github.com/flix/spacemacs
+;; License: Apache-2.0
 
 ;;; Commentary:
 
 ;; Spacemacs layer for the Flix programming language.
-;; - Uses flix-mode (https://codeberg.org/mdiin/flix-mode) as the major mode.
+;; - Uses flix-mode (https://github.com/flix/emacs) as the major mode.
 ;; - Starts the official compiler (jar) as the LSP server through flix-mode's
 ;;   public API.
 ;; The Flix LSP server loads the whole project on initialize, so no manual
@@ -20,8 +20,8 @@
 (defconst flix-packages
   '(;; The major mode itself.  Requires toml to parse flix.toml.
     (flix-mode :location (recipe
-                          :fetcher codeberg
-                          :repo "mdiin/flix-mode"))
+                          :fetcher github
+                          :repo "flix/emacs"))
     ;; flix-mode's dependency (require 'toml).  Declared here to pin load order.
     (toml :location (recipe
                      :fetcher github
