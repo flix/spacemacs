@@ -40,6 +40,7 @@
   (use-package flix-mode
     :after toml
     :config
+    (require 'project)
     (spacemacs/declare-prefix-for-mode 'flix-mode "mc" "compile/run")
     (spacemacs/declare-prefix-for-mode 'flix-mode "ms" "repl")
     (spacemacs/declare-prefix-for-mode 'flix-mode "mt" "test")
@@ -53,6 +54,15 @@
     ;; convention: C-j moves to a newer input, C-k to an older one.
     (define-key flix-repl-mode-map (kbd "C-j") #'comint-next-input)
     (define-key flix-repl-mode-map (kbd "C-k") #'comint-previous-input)))
+
+(defun flix//project-find (dir)
+  "Find the enclosing Flix project for DIR by locating flix.toml.
+Return a project of the form (transient . ROOT) so that project.el uses
+the directory containing flix.toml as the project root.  In a monorepo,
+the flix.toml lives in a subdirectory below the VC root, so relying on the
+VC (or projectile) root alone points flix-mode at the wrong directory."
+  (when-let ((root (locate-dominating-file dir "flix.toml")))
+    (cons 'transient root)))
 
 (defun flix//default-directory-parent-of-root (orig-fn &rest args)
   "Set the server cwd to the parent of the workspace root in flix-mode buffers.
@@ -77,6 +87,15 @@ loads every project file (*.flix, src/**, test/**, lib/**) on initialize."
   ;; (server-provided highlighting) must be enabled before LSP starts.
   (add-hook 'flix-mode-hook
             (lambda ()
+              ;; Make flix.toml the highest-priority project marker in this
+              ;; buffer.  A global entry in `project-find-functions' is not
+              ;; enough: projectile's own entry is prepended after the layer
+              ;; loads and wins, returning the VC root instead of the flix.toml
+              ;; directory.  Setting it buffer-locally here keeps flix.toml
+              ;; first for .flix buffers without affecting other languages, and
+              ;; must run before the jar is resolved below.
+              (setq-local project-find-functions
+                          (cons #'flix//project-find project-find-functions))
               (setq-local lsp-semantic-tokens-enable t)
               (lsp-deferred)))
   ;; Client registration must run after lsp-mode is loaded.
