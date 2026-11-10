@@ -29,6 +29,8 @@ rename propagating across the project.*
   initialize, so cross-file module resolution works out of the box.
 - **Semantic highlighting** provided by the compiler.
 - **Run / test** commands that invoke the Flix CLI from the project root.
+- **Formatting** by Flix's own formatter — the one `flix format` runs —
+  served by the LSP server: format the buffer on demand, or on every save.
 - **REPL** integration: start a project-scoped Flix REPL, and run entry points
   directly from the "Run" code lens. The REPL buffer has minimal standalone
   syntax highlighting (keywords, types, comments, strings) and `C-j` / `C-k`
@@ -65,9 +67,24 @@ jar for the version declared in `flix.toml`.
 
 ## Configuration
 
-The layer is intentionally thin and adds no variables of its own; you
-customize it through the packages it builds on.
+The layer is intentionally thin: it adds a single variable of its own, and
+otherwise you customize it through the packages it builds on.
 
+- **`flix-format-on-save`** (default `nil`) — when non-nil, format a Flix
+  buffer before saving it:
+
+  ```elisp
+  dotspacemacs-configuration-layers
+  '(;; ...
+    lsp
+    (flix :variables flix-format-on-save t))
+  ```
+
+  `SPC m T =` toggles it for the running session, in every Flix buffer at
+  once. Formatting is Flix's own, requested from the LSP server, so it
+  matches what `flix format` produces on the command line. It is skipped
+  silently until the server has finished loading the project, and a failure
+  is reported as a warning rather than being allowed to abort the save.
 - **Compiler / jar management** is handled by `flix-mode`. Its customize group
   `flix-mode` (browse it with `M-x customize-group RET flix-mode RET`) exposes:
     - `flix-mode-download-dir` — where jars are downloaded
@@ -112,10 +129,12 @@ Under the major-mode leader (`SPC m` or `,`):
 | Key binding | Description                |
 |-------------|----------------------------|
 | `SPC m '`   | start / switch to the REPL |
+| `SPC m = =` | format the buffer          |
 | `SPC m c c` | run the project (`flix run`) |
 | `SPC m s i` | start / switch to the REPL |
 | `SPC m s q` | quit the REPL              |
 | `SPC m t a` | run all tests (`flix test`) |
+| `SPC m T =` | toggle `flix-format-on-save` |
 
 Inside the REPL buffer:
 
@@ -126,13 +145,18 @@ Inside the REPL buffer:
 
 Clicking the **Run** code lens above an entry point runs it in the REPL. All
 other language features come from the `lsp` layer's standard bindings (e.g.
-`g d` for go to definition, `K` for hover, `SPC m r r` for rename).
+`g d` for go to definition, `K` for hover, `SPC m r r` for rename). That
+includes formatting: `SPC m = =` above is the major-mode spelling of the
+`lsp` layer's own `SPC m = b`, which runs the same command.
 
 ## Known limitations
 
 - Test code lenses are not shown: the Flix compiler (as of v0.75.1) only emits
   a "Run" lens for entry points, not for `@Test` functions, so there is nothing
   for this layer to wire up. Use `SPC m t a` to run the whole test suite.
+- Formatting is whole-file only: the server advertises
+  `documentFormattingProvider` but not `documentRangeFormattingProvider`, so
+  the `lsp` layer's `SPC m = r` (`lsp-format-region`) has nothing to call.
 - `flix test` runs the entire suite; the compiler exposes no way to filter by
   test name from the CLI or REPL, so per-test execution is not available.
 - Files created or deleted mid-session are not pushed to the server until the
