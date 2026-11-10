@@ -6,13 +6,12 @@ A [Spacemacs](https://www.spacemacs.org/) layer for the
 ## Description
 
 This layer wires up [`flix-mode`](https://github.com/flix/emacs) as the
-major mode and drives the official Flix compiler as an LSP server, giving you
-the same core language features available in the official
-[VS Code](https://github.com/flix/vscode-flix) and
-[Neovim](https://github.com/flix/nvim) clients — completion, type/effect
-hovers, go to definition, find references, rename, inlay hints, code lenses,
-and server-provided semantic highlighting — inside the Spacemacs key-binding
-system.
+major mode and drives the official Flix compiler as an LSP server, as the
+official [VS Code](https://github.com/flix/vscode-flix) and
+[Neovim](https://github.com/flix/nvim) clients do, giving you completion,
+type/effect hovers, go to definition, find references, rename, signature
+help, code actions, code lenses, and server-provided semantic highlighting —
+inside the Spacemacs key-binding system.
 
 https://github.com/user-attachments/assets/5b784e27-05b0-4210-b76d-0e211b8b0bb2
 
