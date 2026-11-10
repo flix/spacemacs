@@ -74,7 +74,7 @@ Return a project of the form (transient . ROOT) so that project.el uses
 the directory containing flix.toml as the project root.  In a monorepo,
 the flix.toml lives in a subdirectory below the VC root, so relying on the
 VC (or projectile) root alone points flix-mode at the wrong directory."
-  (when-let ((root (locate-dominating-file dir "flix.toml")))
+  (when-let* ((root (locate-dominating-file dir "flix.toml")))
     (cons 'transient root)))
 
 (defun flix//default-directory-parent-of-root (orig-fn &rest args)
