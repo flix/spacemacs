@@ -151,7 +151,7 @@ includes formatting: `SPC m = =` above is the major-mode spelling of the
 
 ## Known limitations
 
-- Test code lenses are not shown: the Flix compiler (as of v0.75.1) only emits
+- Test code lenses are not shown: the Flix compiler (as of v0.79.0) only emits
   a "Run" lens for entry points, not for `@Test` functions, so there is nothing
   for this layer to wire up. Use `SPC m t a` to run the whole test suite.
 - Formatting is whole-file only: the server advertises
