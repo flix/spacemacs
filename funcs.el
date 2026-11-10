@@ -167,3 +167,49 @@ argument is a JSON object of the form {\"s\": <fully-qualified-name>},
 which lsp-mode parses into a hash table."
   (let ((argument (seq-elt (lsp:command-arguments? action) 0)))
     (flix//run-main (gethash "s" argument))))
+
+;;; Formatting
+
+(defun flix//format-on-save ()
+  "Format the current buffer through the Flix LSP server before saving.
+Added to `before-save-hook' by `flix//setup-format-on-save'.
+
+Nothing happens until a workspace answering `textDocument/formatting' is
+connected: the Flix server compiles the whole project on initialize, so a
+buffer is easily saved before the server can serve a request.
+
+Any failure is downgraded to a warning, because formatting must never
+stop a file from being saved.  `lsp-request' signals a plain `error' on
+timeout rather than one of lsp-mode's own error symbols, and the default
+`lsp-response-timeout' of 10 seconds is short against a server that may
+still be compiling the project."
+  (when (and (bound-and-true-p lsp-mode)
+             (lsp-feature? "textDocument/formatting"))
+    (condition-case err
+        (lsp-format-buffer)
+      (error
+       (display-warning 'flix
+                        (format "Formatting on save failed: %s"
+                                (error-message-string err))
+                        :warning)))))
+
+(defun flix//setup-format-on-save ()
+  "Install or remove the format-on-save hook for the current buffer.
+Follows `flix-format-on-save'.  Run from `flix-mode-hook', and again for
+every live Flix buffer when `flix/toggle-format-on-save' flips it."
+  (if flix-format-on-save
+      (add-hook 'before-save-hook #'flix//format-on-save nil t)
+    (remove-hook 'before-save-hook #'flix//format-on-save t)))
+
+(defun flix/toggle-format-on-save ()
+  "Toggle `flix-format-on-save' for the running session.
+Applies to the Flix buffers already open as well as to new ones, since
+`flix-mode-hook' has already run for the former."
+  (interactive)
+  (setq flix-format-on-save (not flix-format-on-save))
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (when (derived-mode-p 'flix-mode)
+        (flix//setup-format-on-save))))
+  (message "flix-format-on-save: %s"
+           (if flix-format-on-save "enabled" "disabled")))

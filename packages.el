@@ -41,15 +41,28 @@
     :after toml
     :config
     (require 'project)
+    ;; Deliberately `add-hook' rather than use-package's `:hook': that keyword
+    ;; implies `:defer t', which drops the `require' this form would otherwise
+    ;; emit.  flix-mode puts `.flix' into `auto-mode-alist' as a side effect of
+    ;; being loaded, and that `add-to-list' carries no autoload cookie, so
+    ;; deferring the load leaves .flix files in fundamental-mode.
+    (add-hook 'flix-mode-hook #'flix//setup-format-on-save)
+    (spacemacs/declare-prefix-for-mode 'flix-mode "m=" "format")
     (spacemacs/declare-prefix-for-mode 'flix-mode "mc" "compile/run")
     (spacemacs/declare-prefix-for-mode 'flix-mode "ms" "repl")
     (spacemacs/declare-prefix-for-mode 'flix-mode "mt" "test")
+    (spacemacs/declare-prefix-for-mode 'flix-mode "mT" "toggle")
+    ;; `lsp-format-buffer' is already on "=b" from the lsp layer's minor-mode
+    ;; bindings; "==" is the major-mode spelling other layers use for
+    ;; formatting the whole buffer, so bind it to the same command.
     (spacemacs/set-leader-keys-for-major-mode 'flix-mode
       "'" 'flix/repl
+      "==" 'lsp-format-buffer
       "cc" 'flix/run
       "ta" 'flix/test
       "si" 'flix/repl
-      "sq" 'flix/repl-quit)
+      "sq" 'flix/repl-quit
+      "T=" 'flix/toggle-format-on-save)
     ;; REPL history navigation, following the Python/Haskell layers'
     ;; convention: C-j moves to a newer input, C-k to an older one.
     (define-key flix-repl-mode-map (kbd "C-j") #'comint-next-input)
@@ -61,7 +74,7 @@ Return a project of the form (transient . ROOT) so that project.el uses
 the directory containing flix.toml as the project root.  In a monorepo,
 the flix.toml lives in a subdirectory below the VC root, so relying on the
 VC (or projectile) root alone points flix-mode at the wrong directory."
-  (when-let ((root (locate-dominating-file dir "flix.toml")))
+  (when-let* ((root (locate-dominating-file dir "flix.toml")))
     (cons 'transient root)))
 
 (defun flix//default-directory-parent-of-root (orig-fn &rest args)
